@@ -2,4 +2,4 @@ coveralls
 flake8
 requests
 pytest
-opentrons==3.19.0
+opentrons==6.2.1
