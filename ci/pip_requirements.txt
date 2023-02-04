@@ -2,8 +2,4 @@ coveralls
 flake8
 requests
 pytest
-<<<<<<< Updated upstream
 opentrons==6.2.1
-=======
-opentrons==6.2.1
->>>>>>> Stashed changes
