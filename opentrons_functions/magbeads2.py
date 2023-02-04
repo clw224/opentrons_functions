@@ -52,23 +52,19 @@ def bead_mix(pipette,
     return()
 
 
-<<<<<<< Updated upstream
-def remove_supernatant_odss(pipette,
-=======
 def remove_supernatant_odds(pipette,
->>>>>>> Stashed changes
-                       		plate,
-                       		cols,
-                       		tiprack,
-                       		waste,
-                       		super_vol=600,
-                       		tip_vol=200,
-                       		rate=0.25,
-                       		bottom_offset=2,
-                       		dispense_rate=1,
-                       		blow_out=False,
-                       		drop_tip=False,
-                       		vol_fn=None):
+                       		  plate,
+                       		  cols,
+                       		  tiprack,
+                       		  waste,
+                       		  super_vol=600,
+                       		  tip_vol=200,
+                       		  rate=0.25,
+                       		  bottom_offset=2,
+                       		  dispense_rate=1,
+                       		  blow_out=False,
+                       		  drop_tip=False,
+                       		  vol_fn=None):
 
     # remove supernatant
     if vol_fn is None:
@@ -113,18 +109,18 @@ def remove_supernatant_odds(pipette,
     return()
 
 def remove_supernatant_evens(pipette,
-                       		 plate,
-                       		 cols,
-                       		 tiprack,
-                       		 waste,
-                       		 super_vol=600,
-                       		 tip_vol=200,
-                       		 rate=0.25,
-                       		 bottom_offset=2,
-                       		 dispense_rate=1,
-                       		 blow_out=False,
-                       		 drop_tip=False,
-                       		 vol_fn=None):
+                       		   plate,
+                       		   cols,
+                       		   tiprack,
+                       		   waste,
+                       		   super_vol=600,
+                       		   tip_vol=200,
+                       		   rate=0.25,
+                       		   bottom_offset=2,
+                       		   dispense_rate=1,
+                       		   blow_out=False,
+                       		   drop_tip=False,
+                       		   vol_fn=None):
 
     # remove supernatant
     if vol_fn is None:
@@ -151,6 +147,62 @@ def remove_supernatant_evens(pipette,
 
             pipette.aspirate(transfer_vol,
                              plate[col].bottom().move(types.Point(x = 1, y=0, z=z_height)),
+                             rate=rate)
+            pipette.air_gap(10)
+            pipette.dispense(transfer_vol + 10,
+                             waste.top(),
+                             rate=dispense_rate)
+            pipette.aspirate(10)
+            dispense_gap = True
+            vol_remaining -= transfer_vol
+        # we're done with these tips at this point
+        if blow_out:
+            pipette.blow_out()
+        if drop_tip:
+            pipette.drop_tip()
+        else:
+            pipette.return_tip()
+    return()
+
+def remove_supernatant(pipette,
+                       plate,
+                       cols,
+                       tiprack,
+                       waste,
+                       super_vol=600,
+                       tip_vol=200,
+                       rate=0.25,
+                       bottom_offset=2,
+                       dispense_rate=1,
+                       blow_out=False,
+                       drop_tip=False,
+                       vol_fn=None):
+
+    # remove supernatant
+    if vol_fn is None:
+        def vol_fn(x): return(4 if x > 185 else bottom_offset)
+
+    for col in cols:
+        vol_remaining = super_vol
+
+        # transfers to remove supernatant:
+        pipette.pick_up_tip(tiprack.wells_by_name()[col])
+
+        dispense_gap = False
+        while vol_remaining > 0:
+
+            transfer_vol = min(vol_remaining, (tip_vol - 10))
+
+            z_height = vol_fn(vol_remaining - transfer_vol)
+            if z_height < bottom_offset:
+                z_height = bottom_offset
+
+            if dispense_gap:
+                pipette.move_to(plate[col].top())
+                pipette.dispense(10)
+
+            pipette.aspirate(transfer_vol,
+                             plate[col].bottom(z=z_height),
                              rate=rate)
             pipette.air_gap(10)
             pipette.dispense(transfer_vol + 10,
